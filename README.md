@@ -1,7 +1,10 @@
 # data_retrieve
 
-#This .ipynb notebook is separated into three working parts, one for each school that is complete, HBS, Wharton, and Stanford. Two other schools are partially complete. I have not included these here. 
+#This .ipynb notebook is separated into five working parts, one for each school that is complete: HBS, Wharton, Stanford, Haas, and University of Michigan Ross. 
+Two other schools are partially complete. I have not included these here. 
 
-#Data is saved into dataframes currently. This will be ported into other files as soon as the resources are more complete. Until now, this has been created with indepedent study. My Data Analytics program has moved into webscraping the past week, so I expect to have more sophisticated code soon.  
+#Data is saved into dataframes, then concatenated and loaded into MongoDB. The output is the MongoDB collection with courses and descriptions. 
+Some descriptions are arrays themselves, with one further level in the hierarchy.
 
-Thanks again Lucas. 
+
+#Thanks again. 
