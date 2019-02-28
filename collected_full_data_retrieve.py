@@ -1,7 +1,7 @@
-
+#!/usr/bin/env python
 # coding: utf-8
 
-# In[9]:
+# In[1]:
 
 
 from bs4 import BeautifulSoup
@@ -26,6 +26,8 @@ curriculum_collection = db.curriculumDB
 
 
 #First is HBS
+
+print('HBS')
 
 source='https://www.hbs.edu/coursecatalog/indexcourse.html'
 
@@ -82,6 +84,8 @@ for i in range(len(hbsdf['Description'])):
 
 #Next is Wharton. This was the first code that I wrote, so it is a bit clunkier. Also, this includes prerequisites. (Note: this is removed in current mongoDB version)
 #I have decided to remove this from the final version, because it is outside the scope of the original project.
+
+print('Wharton')
 
 source='https://mgmt.wharton.upenn.edu/programs/mba/course-descriptions/'
 
@@ -165,10 +169,12 @@ newcols = ['Course','Description',  'Source', 'School']
 whartondf = fulldf[newcols]
 
 
-# In[5]:
+# In[8]:
 
 
 #Stanford had problably the simplest, best-formatted website. Bless the people at Stanford who are running this website. 
+
+print('Stanford')
 
 source = 'https://exploredegrees.stanford.edu/graduateschoolofbusiness/#courseinventory'
 
@@ -194,11 +200,15 @@ for i in soup.findAll('p'):
         
 #Below is simply to remove html tags from the text.
         
-for i in range(len(title)):
-    title[i] = re.sub('<[^<]+?>', '', str(title[i]))     
+for i in range(len(titlelist)):
+    titlelist[i] = re.sub('<[^<]+?>', '', str(titlelist[i]))     
         
-stanforddf = pd.DataFrame(titlelist, columns=["Course"])
+try:
+    stanforddf = pd.DataFrame(titlelist, columns=["Course"])
 
+except:
+    print('Stanford webpage changed (dataframe conversion)')
+    
 stanforddf['Description'] = desclist
 
 for i in range(len(stanforddf)):
@@ -210,8 +220,10 @@ stanforddf['Source'] = source
 stanforddf['School'] = 'Stanford'
 
 
-# In[6]:
+# In[ ]:
 
+
+print('Haas')
 
 html = urlopen(str('https://aai.haas.berkeley.edu/scheduling/CourseSchedule.aspx?Semester=Spring&Year=2019'))
 soup = BeautifulSoup(html, 'html.parser')
@@ -256,7 +268,7 @@ for i in range(len(linklist)):
         
     except:
         errorlist.append(i)
-        print(i)
+        print("The following index threw a 404 error: i=" + str(i) + ". Typing 'linklist[i]' will display the specific link.")
         
 testlist = []
 desclist = []
@@ -282,7 +294,7 @@ for j in range(len(bigdictlist)):
     #The numbers currently printing are the list indices from linklist which threw a 404 error when followed. Typing linklist[number] would give the link itself             
 
 
-# In[7]:
+# In[ ]:
 
 
 
@@ -307,11 +319,13 @@ for i in range(len(haasdf)):
 haasdf['Description'] = testlist    
 
 
-# In[10]:
+# In[ ]:
 
 
 numlist = list(np.arange(1,23,1))
 
+print('Ross')
+print('(This one takes quite a while. Thanks for your patience)')
 #The simplest and best so far.
 
 source = 'https://michiganross.umich.edu/course-catalog'
@@ -319,32 +333,45 @@ source = 'https://michiganross.umich.edu/course-catalog'
 html = urlopen(str(source))
 soup = BeautifulSoup(html, 'html.parser')
 
-linklist = []
+rlinklist = []
 
-linklist.extend(soup.find_all('a', class_="arrow small"))
+rlinklist.extend(soup.find_all('a', class_="arrow small"))
 
 for i in numlist:
-    source = 'https://michiganross.umich.edu/course-catalog?page=' + str(i)
-    html = urlopen(str(source))
-    soup = BeautifulSoup(html, 'html.parser')
     
-    linklist.extend(soup.find_all('a', class_="arrow small"))
+    try:
+    
+        source = 'https://michiganross.umich.edu/course-catalog?page=' + str(i)
+        html = urlopen(str(source))
+        soup = BeautifulSoup(html, 'html.parser')
+    
+        rlinklist.extend(soup.find_all('a', class_="arrow small"))
 
+        
+    except:
+        
+        print(source)
+        
 desclist = []
 courselist = []
 sourcelist = []
 
 #The better written the website, the more elegant the code to scrape it. 
 
-for i in linklist:
-    source = "https://michiganross.umich.edu" + str(i)[29:-16]
-    html = urlopen(str(source))
-    soup = BeautifulSoup(html, 'html.parser')
-
-    desclist.extend(soup.find_all(attrs={'name':'description'}))
-    courselist.append(str(soup.find_all(attrs={'name':'description'})).split(" ---",1)[0][16:] )
-    sourcelist.append(source)
+for i in rlinklist:
     
+    try:
+    
+        source = "https://michiganross.umich.edu" + str(i)[29:-16]
+        html = urlopen(str(source))
+        soup = BeautifulSoup(html, 'html.parser')
+
+        desclist.extend(soup.find_all(attrs={'name':'description'}))
+        courselist.append(str(soup.find_all(attrs={'name':'description'})).split(" ---",1)[0][16:] )
+        sourcelist.append(source)
+    
+    except:
+        print(source)
 rossdf = pd.DataFrame(courselist, columns = ['Course'])
 
 desc2list = []
@@ -356,7 +383,7 @@ rossdf['School'] = 'University of Michigan Ross'
 rossdf['Source'] = sourcelist
 
 
-# In[11]:
+# In[ ]:
 
 
 fulldf = pd.concat([hbsdf, whartondf, stanforddf, haasdf, rossdf], sort=True)
@@ -366,12 +393,13 @@ fulldf = pd.concat([hbsdf, whartondf, stanforddf, haasdf, rossdf], sort=True)
 fulldict = fulldf.to_dict(orient='list')
 
 
-# In[12]:
+# In[ ]:
 
 
 #db.curriculum.insert_one(partialdict)
 db.curriculum.insert_one(fulldict)
 
+print('Success! The database can be found at "mongodb://localhost:27017"')
 
 #Note: full database should appear in mongoDB. Format for the 'Description' field is not consistent, but this is due to the underlying HTML of the pages and
 #would be more trouble than it was worth to standardize. 
@@ -379,6 +407,12 @@ db.curriculum.insert_one(fulldict)
 #Especially for Haas, this field will give a dictionary with the key being the URL and the values being the content.
 #This is because each description is a different URL, but some of these URLs led to 404 errors. 
 #HBS has a similar structure, but it was possible to take only content in the "Description" field.
+
+
+# In[ ]:
+
+
+
 
 
 # In[ ]:
