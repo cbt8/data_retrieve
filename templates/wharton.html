@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <link rel="stylesheet" href="../static/stylecode.css">
+
+<head>
+  <meta charset="UTF-8">
+  
+  <title>MBA programs and data</title>
+
+</head>
+
+<body>
+
+
+    <ul class="nav sticky-top nav-tabs" id="nav1" >
+        <li class="nav-item"> <a class="nav-link" href="{{ url_for('index') }}" >Home</a></li>
+        <li class="nav-item"> <a class="nav-link"  href="{{ url_for('full') }}">All Courses, All Schools</a></li>
+        <li class="nav-item"> <a class="nav-link"  href="{{ url_for('data') }}">Data Courses, All Schools</a></li>
+
+        
+        <!--<div class="btn-group dropright">
+          <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+            All Courses by School
+          </button>
+          <div class="dropdown-menu" id= "nav1"aria-labelledby="dropdownMenuButton">
+            <a class="dropdown-item" href="./temp.html">Harvard Business School</a>
+            <a class="dropdown-item" href="./humid.html">Wharton</a>
+            <a class="dropdown-item" href="./cloud.html">Stanford</a>
+            <a class="dropdown-item" href="./wind.html">Haas</a>
+            <a class="dropdown-item" href="./wind.html">University of Michigan Ross</a>
+            <a class="dropdown-item" href="./wind.html">MIT Sloan</a>
+          </div>
+        </div>-->
+        <div class="btn-group dropright">
+          <button class="btn btn-secondary dropdown-toggle active" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+            Data Courses by School
+          </button>
+          <div class="dropdown-menu" id= "nav1"aria-labelledby="dropdownMenuButton">
+            <a class="dropdown-item" href="{{ url_for('hbs') }}">Harvard Business School</a>
+            <a class="dropdown-item" href="{{ url_for('wharton') }}">Wharton</a>
+            <a class="dropdown-item" href="{{ url_for('stanford') }}">Stanford</a>
+            <a class="dropdown-item" href="{{ url_for('haas') }}">Haas</a>
+            <a class="dropdown-item" href="{{ url_for('ross') }}">University of Michigan Ross</a>
+            <a class="dropdown-item" href="{{ url_for('sloan') }}">MIT Sloan</a>
+          </div>
+        </div>
+          
+        </li>
+      </ul>
+      <div id="myTabContent" class="tab-content">
+        <div class="tab-pane fade" id="home">
+          
+        </div>
+      </div>
+
+    </nav>
+
+<body>
+    <div class= "table-responsive">
+      <table class="table">
+        {{ whartable }}
+        
+      </ul>
+    </table>
+    </div>
+  
+</body>
+
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<script src="../bootstrap.bundle.js"></script>
+</body>
+</form>
+</html>
