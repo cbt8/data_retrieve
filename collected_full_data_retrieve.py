@@ -11,9 +11,16 @@ import re
 import pymongo
 import numpy as np
 import os
+from flask import Flask, render_template
 
 
 # In[2]:
+
+
+app = Flask(__name__)
+
+
+# In[3]:
 
 
 conn = 'mongodb://localhost:27017'
@@ -29,7 +36,7 @@ else:
   print("Clean file will be produced.")
 
 
-# In[3]:
+# In[4]:
 
 
 #First is HBS
@@ -95,7 +102,7 @@ for i in range(len(hbsdf['Description'])):
         hbsdf['Description'][i][j] = hbsdf['Description'][i][j].replace('\n', '')
 
 
-# In[4]:
+# In[5]:
 
 
 #Next is Wharton. This was the first code that I wrote, so it is a bit clunkier. Also, this includes prerequisites. (Note: this is removed in current mongoDB version)
@@ -185,7 +192,7 @@ newcols = ['Course','Description',  'Source', 'School']
 whartondf = fulldf[newcols]
 
 
-# In[5]:
+# In[6]:
 
 
 #Stanford had problably the simplest, best-formatted website. Bless the people at Stanford who are running this website. 
@@ -236,7 +243,7 @@ stanforddf['Source'] = source
 stanforddf['School'] = 'Stanford'
 
 
-# In[6]:
+# In[7]:
 
 
 print('Haas')
@@ -309,7 +316,7 @@ for j in range(len(bigdictlist)):
     #The numbers currently printing are the list indices from linklist which threw a 404 error when followed. Typing linklist[number] would give the link itself             
 
 
-# In[7]:
+# In[8]:
 
 
 
@@ -341,7 +348,7 @@ for i in range(len(haasdf['Description'])):
         haasdf['Description'][i][j] = haasdf['Description'][i][j].replace('\xa0', ' ')
 
 
-# In[8]:
+# In[9]:
 
 
 numlist = list(np.arange(1,23,1))
@@ -404,7 +411,7 @@ rossdf['School'] = 'University of Michigan Ross'
 rossdf['Source'] = sourcelist
 
 
-# In[9]:
+# In[10]:
 
 
 print('MIT Sloan')
@@ -456,7 +463,7 @@ for j in range(len(sloandf['Description'])):
         sloandf['Description'][j] = sloandf['Description'][j].replace('\n', ' ')
 
 
-# In[10]:
+# In[11]:
 
 
 fulldf = pd.concat([hbsdf, whartondf, stanforddf, haasdf, rossdf, sloandf], sort=True)
@@ -465,67 +472,80 @@ fulldf = pd.concat([hbsdf, whartondf, stanforddf, haasdf, rossdf, sloandf], sort
 fulldf.to_excel("./MBA_data.xlsx")
 
 #partialdict = partialdf.to_dict(orient='list')
-fulldict = fulldf.to_dict(orient='list')
-
-
-# In[11]:
-
-
-#db.curriculum.insert_one(partialdict)
-db.curriculum.insert_one(fulldict)
-
-print('Success! The database can be found at "mongodb://localhost:27017"')
-
-#Note: full database should appear in mongoDB. Format for the 'Description' field is not consistent, but this is due to the underlying HTML of the pages and
-#would be more trouble than it was worth to standardize. 
-
-#Especially for Haas, this field will give a dictionary with the key being the URL and the values being the content.
-#This is because each description is a different URL, but some of these URLs led to 404 errors. 
-#HBS has a similar structure, but it was possible to take only content in the "Description" field.
+fulldict = fulldf.to_dict(orient='records')
 
 
 # In[12]:
 
 
-
-#Note: Remaining code is unfinished and has been commented out. 
-
-#source='http://www.tuck.dartmouth.edu/mba/academic-experience/elective-curriculum/elective-courses'
-
-#html = urlopen(str(source))
-#soup = BeautifulSoup(html, 'html.parser')
-
-#divlist = []
-#for i in soup.find_all("div", class_='row content' ):
- #   i.contents.p
+fulldf = fulldf.reset_index()
 
 
 # In[13]:
 
 
-#divlist
+compulist = []
+datalist = []
+mllist= []
+analyticslist=[]
+
+for i in range(len(fulldf['Course'])):
+    
+    try:
+        if "Compu" in str(fulldf['Course'][i]):
+            compulist.append(i)
+            print(fulldf['Course'][i])
+            
+        elif "Data" in str(fulldf['Course'][i]):
+            datalist.append(i)
+            print(fulldf['Course'][i])
+            
+        elif "Machine Learning" in str(fulldf['Course'][i]):
+            mllist.append(i)
+            print(fulldf['Course'][i]) 
+            
+        elif "Analytics" in str(fulldf['Course'][i]):
+            analyticslist.append(i)
+            print(fulldf['Course'][i])
+              
+    except:
+        print("Failure" + str(i))
 
 
 # In[14]:
 
 
-#soup.find_all('div',class_='row content')
+fulllist = compulist
+fulllist.extend(datalist)
+fulllist.extend(mllist)
+fulllist.extend(analyticslist)
 
 
-# In[15]:
+# In[30]:
 
 
-#This will have to wait until I have a more finished product to test on. 
+for i in range(len(fulldict)):
+    fulldict[i]['Data']= 0
 
-#import pdfkit
+fulldf['Data'] = 0
 
-#pdfkit.from_string(hbsdf, 'out.pdf')
+for i in fulllist:
+    fulldict[i]['Data']= 1
+    fulldf['Data'][i] = 1
 
 
 # In[16]:
 
 
-#In class, making notes for later. Can use .strip to remove whitespace. 
+#db.curriculum.insert_one(partialdict)
+db.curriculum.insert_many(fulldict)
 
-#look for class or id when you are doing .find_all as an argument within the function.
+print('Success! The database can be found at "mongodb://localhost:27017"')
+
+#Note: full database should appear in mongoDB. Format for the 'Description' field is not consistent, but this is due to the underlying HTML of the pages and
+#would be more trouble than it was worth to standardize. (For now)
+
+#Especially for Haas, this field will give a dictionary with the key being the URL and the values being the content.
+#This is because each description is a different URL, but some of these URLs led to 404 errors. 
+#HBS has a similar structure, but it was possible to take only content in the "Description" field.
 
